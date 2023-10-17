@@ -26,7 +26,7 @@ export default function Summary() {
   const [ summaryAmount, setSummaryAmount ] = useState(0)
 
   const handleBack = () => {
-    navigate(routes.pizzaFlavour)
+    navigate(-1)
   }
 
   const handleNext = () => {
@@ -45,6 +45,10 @@ export default function Summary() {
     navigate(routes.checkout)
   }
   
+  const handleNewOrder = () => {
+    navigate(routes.pizzaSize)
+  }
+
   useEffect(() => {
     if (!pizzaFlavour) {
       return navigate(routes.pizzaFlavour)
@@ -54,18 +58,33 @@ export default function Summary() {
       return navigate(routes.home)
     }
 
-    setSummaryData({
-      text: pizzaSize[0].text,
-      slices: pizzaSize[0].slices,
-      name: pizzaFlavour[0].name,
-      price: pizzaFlavour[0].price[pizzaSize[0].slices],
-      image: pizzaFlavour[0].image
-    })
+    if (Array.isArray(pizzaFlavour) && pizzaFlavour.length === 2) {
+      const [flavour1, flavour2] = pizzaFlavour
+      const totalPrice = Math.max(flavour1?.price?.[pizzaSize[0].slices], flavour2?.price?.[pizzaSize[0].slices])
+
+      setSummaryData({
+        text: pizzaSize[0].text,
+        slices: pizzaSize[0].slices,
+        name: `1/2 ${flavour1.name} e 1/2 ${flavour2.name}`,
+        price: totalPrice,
+        image: flavour1.image
+      })
+    } else if (Array.isArray(pizzaFlavour) && pizzaFlavour.length === 1) {
+      const [flavour1] = pizzaFlavour
+      
+      setSummaryData({
+        text: pizzaSize[0].text,
+        slices: pizzaSize[0].slices,
+        name: flavour1.name,
+        price: flavour1.price[pizzaSize[0].slices],
+        image: flavour1.image
+      })
+    }
   }, [])
 
   useEffect(() => {
     setSummaryAmount(summaryData.price)
-  }, [summaryAmount])
+  }, [summaryData])
   
   return (
     <Layout>
@@ -74,7 +93,7 @@ export default function Summary() {
         <SummaryDetails>
           <SummaryImage  src={summaryData.image} alt="" width="200px"/>
           <SummaryTitle>{summaryData.name}</SummaryTitle>
-          <SummaryDescription>{summaryData.text} {`(${summaryData.slices}) pedaços`}</SummaryDescription>
+          <SummaryDescription>{summaryData.text}, {`${summaryData.slices} pedaços`}</SummaryDescription>
           <SummaryPrice>
             {convertToCurrency(summaryData.price)}
           </SummaryPrice>
@@ -87,6 +106,7 @@ export default function Summary() {
         <Button inverse="inverse" onClick={handleBack}>
           Voltar
         </Button>
+        <Button onClick={handleNewOrder}>Adicionar uma nova Pizza</Button>
         <Button onClick={handleNext}>Ir para o pagamento</Button>
       </SummaryActionWrapper>
     </Layout>

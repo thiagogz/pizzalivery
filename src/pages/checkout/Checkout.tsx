@@ -17,15 +17,22 @@ export default function Checkout() {
   const { pizzaOrder } = useContext(OrderContext)
   const navigate = useNavigate()
 
-  const paymentOptions = [
-    { id: "20", value: 1, text: "Cartão de crédito" },
-    { id: "21", value: 2, text: "Cartão de débito" },
-    { id: "22", value: 3, text: "Vale refeição" },
-    { id: "23", value: 4, text: "PIX" },
-  ]
-
   const [paymentType, setPaymentType] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [paymentOptions, setPaymentOptions] = useState([])
+
+  const getPaymentOptions = async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch("http://localhost:8000/payment/options")
+      const options = await response.json()
+      setPaymentOptions(options)
+    } catch (error) {
+      alert(`Deu ruim: ${error}`)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleChange = (event) => {
     setPaymentType(event.target.value)
@@ -111,6 +118,10 @@ export default function Checkout() {
     if (pizzaOrder === undefined) {
       return navigate(routes.pizzaSize)
     }
+  }, [])
+
+  useEffect(() => {
+    getPaymentOptions()
   }, [])
 
   // ?. nullish -- pode não existir, mas evita a quebra da página. Apresenta um valor nulo, caso não exista

@@ -26,7 +26,9 @@ import {
 export default function DualFlavours() {
   const navigate = useNavigate()
   const { pizzaSize, pizzaFlavour, setPizzaFlavour} = useContext(OrderContext)
-  const [ flavourId, setFlavourId ] = useState("")
+  const [selectedFlavourIds, setSelectedFlavourIds] = useState([])
+
+  const isFlavourSelected = (id) => selectedFlavourIds.includes(id);
 
   const flavoursOptions = [
     {
@@ -84,7 +86,17 @@ export default function DualFlavours() {
   }
 
   const handleClick = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFlavourId(event.target.id)
+    const clickedFlavourId = event.target.id;
+    setSelectedFlavourIds(previousIds => {
+      if (previousIds.includes(clickedFlavourId)) {
+        return previousIds.filter(id => id !== clickedFlavourId);
+      } else {
+        if (previousIds.length === 2) {
+          previousIds.shift();
+        }
+        return [...previousIds, clickedFlavourId];
+      }
+    })
   }
 
   const handleBack = () => {
@@ -92,15 +104,31 @@ export default function DualFlavours() {
   }
 
   const handleNext = () => {
-    const selectedFlavour = getPizzaFlavour(flavourId)
-    setPizzaFlavour(selectedFlavour)
-    navigate(routes.summary)
+    if (selectedFlavourIds.length === 2) {
+      const selectedFlavours: Array<PizzaFlavourType> = selectedFlavourIds.map(id => {
+        const flavour = getPizzaFlavour(id)[0];
+        return {
+          id: flavour.id,
+          image: flavour.image,
+          name: flavour.name,
+          description: flavour.description,
+          price: { ...flavour.price },
+        };
+      });
+      setPizzaFlavour(selectedFlavours);
+      navigate(routes.summary);
+    } else {
+      alert("Selecione 2 sabores para continuar.")
+    }
   }
 
   useEffect(() => {
     if (!pizzaFlavour) return
     
-    setFlavourId(pizzaFlavour[0].id)
+    if (selectedFlavourIds.length > 0) {
+      const selectedFlavours = selectedFlavourIds.map(id => getPizzaFlavour(id))
+      setPizzaFlavour(selectedFlavours)
+    }
   }, [])
 
   return (
@@ -108,7 +136,7 @@ export default function DualFlavours() {
       <Title tabIndex={0}>Agora escolha os 2 sabores da sua pizza</Title>
       <FlavourContentWrapper>
         {flavoursOptions.map(({ id, image, name, description, price }) => (
-          <FlavourCard key={id} selected={id === flavourId ? true : false}>
+          <FlavourCard key={id} selected={isFlavourSelected(id)}>
             <FlavourCardImage  src={image} alt={name} width="200px" />
             <FlavourCardTitle>1/2 {name}</FlavourCardTitle>
             <FlavourCardDescription>{description}</FlavourCardDescription>
