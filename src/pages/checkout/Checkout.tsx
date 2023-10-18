@@ -14,7 +14,7 @@ import {
 } from "./Checkout.style"
 
 export default function Checkout() {
-  const { pizzaOrder } = useContext(OrderContext)
+  const { pizzaOrder, setOrderInformation } = useContext(OrderContext)
   const navigate = useNavigate()
 
   const [paymentType, setPaymentType] = useState("")
@@ -48,71 +48,27 @@ export default function Checkout() {
     return filteredValue[0].value
   }
 
-  // const handleClick = () => {
-  //   setIsLoading(true)
-    
-  //   fetch('https://www.api.pizzalivery.com.br/order', {
-  //     method: "POST",
-  //     body: JSON.stringify(pizzaOrder),
-  //   })
-  //     .then(() => {
-  //       alert("Deu bom")
-  //     })
-  //     .catch(() => {
-  //       console.log("Deu ruim")
-  //     })
-  //     .finally(() => {
-  //       setIsLoading(false)
-  //       console.log("Finalizou")
-  //     })
-  // }
-
-  // async/await
-  const doOrder = async () => {
+  const createOrder = async (orderPayload) => {
     setIsLoading(true)
-
-    try{
-      const response = await fetch('https://www.api.pizzalivery.com.br/order', 
-          {
-            method: "POST",
-            body: JSON.stringify(pizzaOrder),
-          }
-        )
-
-        console.log(response)
+    try {
+      const response = await fetch("http://localhost:8000/order/create_order", {
+        method: "POST",
+        body: JSON.stringify(orderPayload),
+      })
+      const data = await response.json()
+      setOrderInformation(data)
     } catch (error) {
-      alert(error)
+      console.log(error)
     } finally {
+      console.log("Finalizou.")
       setIsLoading(false)
     }
   }
 
-  // //  METHODS/VEBS HTTP
-  // //  GET: Receber uma informação; √
-  // fetch("https://www.api.pizzalivery.com.br/order")
-
-  // const filter = "coca cola"
-  // fetch(`https://www.api.pizzalivery.com.br/bebidas=${filter}`)
-
-  // //  POST: Enviar uma informação; √
-  // fetch("https://www.api.pizzalivery.com.br/order", {
-  //   method: "POST",
-  //   body: JSON.stringify(pizzaOrder),
-  // })
-
-  // //  PUT: Alterar uma informação; √
-  // fetch("https://www.api.pizzalivery.com.br/order", {
-  //   method: "PUT",
-  //   body: JSON.stringify(pizzaOrder),
-  // })
-
-  // //  DELETE: Remover uma informação;
-  // const orderID = 12345100;
-
-  // fetch(`https://www.api.pizzalivery.com.br/order/${orderID}`, {
-  //   method: "DELETE",
-  // })
-
+  const handleClick = () => {
+    createOrder(pizzaOrder)
+    navigate(routes.orderDone)
+  }
 
   useEffect(() => {
     if (pizzaOrder === undefined) {
@@ -168,7 +124,7 @@ export default function Checkout() {
             </CheckoutItemFlex>
           </CheckoutItem>
           <CheckoutAction>
-            <Button onClick={doOrder} disabled={!Boolean(paymentType)}>Fazer pedido</Button>
+            <Button onClick={handleClick} disabled={!Boolean(paymentType)}>Fazer pedido</Button>
           </CheckoutAction>
         </>
       )}

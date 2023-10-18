@@ -8,6 +8,7 @@ import Login from "./pages/login/Login"
 import { routes } from "./routes"
 import PrivateRoutes from "./components/privateRoutes/PrivateRoutes"
 import DualFlavours from "./pages/dualFlavours/DualFlavours"
+import OrderDone from "./pages/orderDone/OrderDone"
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path={routes.checkout} element={<Checkout />} />
         </Route>
         <Route path={routes.login} element={<Login />} />
+        <Route path={routes.orderDone} element={<OrderDone />} />
       </Routes>
     </BrowserRouter>
   )

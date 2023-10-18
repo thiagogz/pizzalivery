@@ -5,5 +5,6 @@ export const routes = {
     pizzaDualFlavour: "/pedido/escolha-os-sabores",
     summary: "/pedido/resumo",
     checkout: "/checkout",
-    login: "/login"
+    login: "/login",
+    orderDone: "/pedido/pedido-pronto",
 }
